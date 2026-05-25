@@ -51,7 +51,7 @@ In the Cloudflare dashboard:
 SSH into your VPS and run:
 
 ```bash
-git clone https://github.com/your-username/my-media-server.git
+git clone https://github.com/acarsondave/my-media-server.git
 cd my-media-server
 chmod +x setup.sh
 sudo ./setup.sh
