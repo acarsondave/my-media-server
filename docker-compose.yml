@@ -32,7 +32,7 @@ services:
       - HEALTH_VPN_DURATION_INITIAL=30s
     ports:
       # Gluetun control API -- used for IP rotation
-      - "127.0.0.1:8000:8000/tcp"
+      - "127.0.0.1:8888:8000/tcp"
       # JDownloader web UI (exposed here because JD shares gluetun's network)
       - "5800:5800/tcp"
     healthcheck:
