@@ -60,13 +60,10 @@ services:
       - MYJDOWNLOADER_PASSWORD=${MYJDOWNLOADER_PASSWORD}
       - MYJDOWNLOADER_DEVICE_NAME=${MYJDOWNLOADER_DEVICE_NAME:-media-vps}
     volumes:
-      - '${JDOWNLOADER_CONFIG_PATH:-jdownloader_config}:/config'
+      - '${JDOWNLOADER_CONFIG_PATH:-./jdownloader_config}:/config'
       - /data/downloads:/output
     deploy:
       resources:
         limits:
           memory: 1G
     restart: unless-stopped
-
-volumes:
-  jdownloader_config:
