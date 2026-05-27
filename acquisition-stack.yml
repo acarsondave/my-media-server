@@ -60,7 +60,7 @@ services:
       - MYJDOWNLOADER_PASSWORD=${MYJDOWNLOADER_PASSWORD}
       - MYJDOWNLOADER_DEVICE_NAME=${MYJDOWNLOADER_DEVICE_NAME:-media-vps}
     volumes:
-      - '${JDOWNLOADER_CONFIG_PATH:-./jdownloader_config}:/config'
+      - /var/lib/docker/volumes/t11q38yan49mnb3myeo3wtfu_jdownloader-config/_data:/config
       - /data/downloads:/output
     deploy:
       resources:
