@@ -18,8 +18,8 @@ services:
     ports:
       - "8096:8096/tcp"
     volumes:
-      - /var/lib/docker/volumes/t11q38yan49mnb3myeo3wtfu_jellyfin-config/_data:/config
-      - /var/lib/docker/volumes/t11q38yan49mnb3myeo3wtfu_jellyfin-cache/_data:/cache
+      - '${JELLYFIN_CONFIG_PATH:-jellyfin_config}:/config'
+      - '${JELLYFIN_CACHE_PATH:-jellyfin_cache}:/cache'
       # rshared propagation is mandatory. Without it, if the host
       # rclone mount restarts, this container gets a stale FUSE
       # handle and you see "Transport endpoint is not connected".
@@ -29,3 +29,7 @@ services:
         limits:
           memory: 1.5G
     restart: unless-stopped
+
+volumes:
+  jellyfin_config:
+  jellyfin_cache:
