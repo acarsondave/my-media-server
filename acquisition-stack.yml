@@ -1,0 +1,69 @@
+# Acquisition stack.
+#
+# VPN tunnel + downloader. Spin this up when you need to grab
+# files, shut it down when you're done to reclaim memory and CPU
+# for the streaming stack.
+#
+# JDownloader runs headless -- no VNC port exposed. Manage it
+# entirely through my.jdownloader.org using the credentials
+# in your .env file.
+
+services:
+
+  gluetun:
+    image: qmcgaw/gluetun:v3
+    container_name: gluetun
+    cap_add:
+      - NET_ADMIN
+    devices:
+      - /dev/net/tun:/dev/net/tun
+    environment:
+      - VPN_SERVICE_PROVIDER=${VPN_PROVIDER:-nordvpn}
+      - VPN_TYPE=${VPN_TYPE:-wireguard}
+      - WIREGUARD_PRIVATE_KEY=${WIREGUARD_PRIVATE_KEY:-}
+      # Uncomment for OpenVPN:
+      # - OPENVPN_USER=${OPENVPN_USER}
+      # - OPENVPN_PASSWORD=${OPENVPN_PASSWORD}
+      - SERVER_COUNTRIES=${VPN_COUNTRIES:-Netherlands}
+      - TZ=${TZ:-Etc/UTC}
+    ports:
+      # Control API only, bound to localhost.
+      # Used for checking VPN status and rotating IPs.
+      - "127.0.0.1:8888:8000/tcp"
+    healthcheck:
+      test: ["CMD", "/gluetun-entrypoint", "healthcheck"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+    restart: unless-stopped
+
+  # Shares gluetun's network namespace. All JDownloader traffic
+  # exits through the VPN tunnel. No ports are exposed to the
+  # internet -- management is done via my.jdownloader.org.
+  jdownloader:
+    image: jlesage/jdownloader-2:latest
+    container_name: jdownloader
+    network_mode: "service:gluetun"
+    depends_on:
+      gluetun:
+        condition: service_started
+    environment:
+      - TZ=${TZ:-Etc/UTC}
+      - USER_ID=1000
+      - GROUP_ID=1000
+      - MYJDOWNLOADER_EMAIL=${MYJDOWNLOADER_EMAIL}
+      - MYJDOWNLOADER_PASSWORD=${MYJDOWNLOADER_PASSWORD}
+      - MYJDOWNLOADER_DEVICE_NAME=${MYJDOWNLOADER_DEVICE_NAME:-media-vps}
+    volumes:
+      - /var/lib/docker/volumes/t11q38yan49mnb3myeo3wtfu_jdownloader-config/_data:/config
+      - /data/downloads:/output
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+    restart: unless-stopped

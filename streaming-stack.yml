@@ -1,0 +1,31 @@
+# Streaming stack.
+#
+# Jellyfin only. This runs 24/7. Keep it separate from the
+# acquisition stack so you can shut down the VPN + downloader
+# when you're not actively grabbing files.
+#
+# Subtitles are handled by Jellyfin's native plugin system
+# (OpenSubtitles / Subbuzz) instead of running a separate
+# Bazarr container.
+
+services:
+
+  jellyfin:
+    image: jellyfin/jellyfin:latest
+    container_name: jellyfin
+    environment:
+      - TZ=${TZ:-Etc/UTC}
+    ports:
+      - "8096:8096/tcp"
+    volumes:
+      - /var/lib/docker/volumes/t11q38yan49mnb3myeo3wtfu_jellyfin-config/_data:/config
+      - /var/lib/docker/volumes/t11q38yan49mnb3myeo3wtfu_jellyfin-cache/_data:/cache
+      # rshared propagation is mandatory. Without it, if the host
+      # rclone mount restarts, this container gets a stale FUSE
+      # handle and you see "Transport endpoint is not connected".
+      - /mnt/r2/media:/media:ro,rshared
+    deploy:
+      resources:
+        limits:
+          memory: 1.5G
+    restart: unless-stopped
