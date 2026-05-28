@@ -190,16 +190,27 @@ chmod +x "$UPLOAD_SCRIPT"
 echo "Wrote upload script to $UPLOAD_SCRIPT"
 
 # -- cron job --
-CRON_LINE="*/5 * * * * $UPLOAD_SCRIPT"
+UPLOAD_CRON_LINE="*/5 * * * * $UPLOAD_SCRIPT"
+BACKUP_CRON_LINE="0 4 * * * rclone --config /etc/rclone/rclone.conf sync /var/lib/docker/volumes/t11q38yan49mnb3myeo3wtfu_jellyfin-config/_data r2:media/backups/jellyfin-volume-full"
 
-# Avoid duplicating the entry if this script is run more than once.
+# Avoid duplicating the entries if this script is run more than once.
 EXISTING="$(crontab -l 2>/dev/null || true)"
+
 if echo "$EXISTING" | grep -qF "$UPLOAD_SCRIPT"; then
-    echo "Cron job already registered, skipping."
+    echo "Upload cron job already registered, skipping."
 else
-    (echo "$EXISTING"; echo "$CRON_LINE") | crontab -
-    echo "Registered 5-minute cron job."
+    EXISTING="$(echo "$EXISTING"; echo "$UPLOAD_CRON_LINE")"
+    echo "Registered 5-minute upload cron job."
 fi
+
+if echo "$EXISTING" | grep -qF "r2:media/backups/jellyfin-volume-full"; then
+    echo "Backup cron job already registered, skipping."
+else
+    EXISTING="$(echo "$EXISTING"; echo "$BACKUP_CRON_LINE")"
+    echo "Registered daily backup cron job."
+fi
+
+echo "$EXISTING" | crontab -
 
 # -- logrotate --
 # Prevent the upload log from growing indefinitely.
