@@ -10,48 +10,48 @@
 
 services:
 
-  gluetun:
-    image: qmcgaw/gluetun:v3
-    container_name: gluetun
-    cap_add:
-      - NET_ADMIN
-    devices:
-      - /dev/net/tun:/dev/net/tun
-    environment:
-      - VPN_SERVICE_PROVIDER=${VPN_PROVIDER:-nordvpn}
-      - VPN_TYPE=${VPN_TYPE:-wireguard}
-      - WIREGUARD_PRIVATE_KEY=${WIREGUARD_PRIVATE_KEY:-}
-      # Uncomment for OpenVPN:
-      # - OPENVPN_USER=${OPENVPN_USER}
-      # - OPENVPN_PASSWORD=${OPENVPN_PASSWORD}
-      - SERVER_COUNTRIES=${VPN_COUNTRIES:-Netherlands}
-      - TZ=${TZ:-Etc/UTC}
-    ports:
-      # Control API only, bound to localhost.
-      # Used for checking VPN status and rotating IPs.
-      - "127.0.0.1:8888:8000/tcp"
-    healthcheck:
-      test: ["CMD", "/gluetun-entrypoint", "healthcheck"]
-      interval: 30s
-      timeout: 5s
-      retries: 3
-      start_period: 10s
-    deploy:
-      resources:
-        limits:
-          memory: 512M
-    restart: unless-stopped
+#   gluetun:
+#     image: qmcgaw/gluetun:v3
+#     container_name: gluetun
+#     cap_add:
+#       - NET_ADMIN
+#     devices:
+#       - /dev/net/tun:/dev/net/tun
+#     environment:
+#       - VPN_SERVICE_PROVIDER=${VPN_PROVIDER:-nordvpn}
+#       - VPN_TYPE=${VPN_TYPE:-wireguard}
+#       - WIREGUARD_PRIVATE_KEY=${WIREGUARD_PRIVATE_KEY:-}
+#       # Uncomment for OpenVPN:
+#       # - OPENVPN_USER=${OPENVPN_USER}
+#       # - OPENVPN_PASSWORD=${OPENVPN_PASSWORD}
+#       - SERVER_COUNTRIES=${VPN_COUNTRIES:-Netherlands}
+#       - TZ=${TZ:-Etc/UTC}
+#     ports:
+#       # Control API only, bound to localhost.
+#       # Used for checking VPN status and rotating IPs.
+#       - "127.0.0.1:8888:8000/tcp"
+#     healthcheck:
+#       test: ["CMD", "/gluetun-entrypoint", "healthcheck"]
+#       interval: 30s
+#       timeout: 5s
+#       retries: 3
+#       start_period: 10s
+#     deploy:
+#       resources:
+#         limits:
+#           memory: 512M
+#     restart: unless-stopped
 
-  # Shares gluetun's network namespace. All JDownloader traffic
-  # exits through the VPN tunnel. No ports are exposed to the
-  # internet -- management is done via my.jdownloader.org.
+  # Gluetun VPN is currently disabled for faster DDL speeds.
+  # If you re-enable it, uncomment the network_mode and depends_on blocks below.
+  # JDownloader runs headless and connects to the internet directly. No ports exposed.
   jdownloader:
     image: jlesage/jdownloader-2:latest
     container_name: jdownloader
-    network_mode: "service:gluetun"
-    depends_on:
-      gluetun:
-        condition: service_started
+    # network_mode: "service:gluetun"
+    # depends_on:
+    #   gluetun:
+    #     condition: service_started
     environment:
       - TZ=${TZ:-Etc/UTC}
       - USER_ID=1000
