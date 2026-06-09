@@ -23,7 +23,7 @@ services:
       # rshared propagation is mandatory. Without it, if the host
       # rclone mount restarts, this container gets a stale FUSE
       # handle and you see "Transport endpoint is not connected".
-      - /mnt/r2/media:/media:ro,rshared
+      - /mnt/r2/media:/media:rw,rshared
     deploy:
       resources:
         limits:
