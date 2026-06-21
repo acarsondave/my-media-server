@@ -30,8 +30,9 @@ services:
       # Control API only, bound to localhost.
       # Used for checking VPN status and rotating IPs.
       - "127.0.0.1:8888:8000/tcp"
-      # Temporarily exposed VNC Web GUI for JDownloader settings
+      # Exposed VNC Web GUI for JDownloader settings (Access via SSH Port Forwarding)
       - "5800:5800/tcp"
+
     healthcheck:
       test: ["CMD", "/gluetun-entrypoint", "healthcheck"]
       interval: 30s
