@@ -12,4 +12,4 @@ sleep 2
 curl -s -X PUT -d '{"status":"running"}' http://127.0.0.1:8000/v1/vpn/status > /dev/null
 
 # Give it a few seconds to establish the handshake before JDownloader resumes downloading
-sleep 5
+sleep 15
